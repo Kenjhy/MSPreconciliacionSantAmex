@@ -1,0 +1,43 @@
+# ===================================================================================================
+# Configuración Spring Boot - PRINCIPAL
+#
+# Configuración base de la aplicación, actúa en conjunto con el application-PROFILE.yml.
+# Aquí se establece la configuración base que normalmente no debería cambiar de acuerdo al
+# profile, o que podría aplicar para más de un profile.
+# ===================================================================================================
+
+# ===================================================================================================
+# Propiedades estandar de Spring.
+# Referencia completa en:
+# http://docs.spring.io/spring-boot/docs/current/reference/html/common-application-properties.html
+# ===================================================================================================
+
+management:
+  context-path: /mspreconciliacion
+security:
+  ignored: /,/index.html,/favicon.png,/logo.png,
+  endpoint:
+    health:
+      show-details: always
+
+
+info:
+  project:
+    version: 0.0.1
+
+spring:
+  profiles:
+    active: dev
+  data:
+    elasticsearch:
+      repositories:
+        enabled: true
+  application:
+    name: mspreconciliacion
+  http:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+logging:
+  config: classpath:logback-spring.xml
+

@@ -1,0 +1,550 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>mx.com.nmp.mspreconciliacion</groupId>
+    <artifactId>mspreconciliacion</artifactId>
+    <version>0.0.1</version>
+    <packaging>war</packaging>
+
+    <name>mspreconciliacion</name>
+    <description>MicroServicio mspreconciliacion</description>
+
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>2.5.7</version>
+        <relativePath/> <!-- lookup parent from repository -->
+    </parent>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <start-class>mx.com.nmp.mspreconciliacion.MSPreConciliacionApplication</start-class>
+        <java.version>1.8</java.version>
+        <jacoco-maven-plugin.version>0.8.8</jacoco-maven-plugin.version>
+        <maven-enforcer-plugin.version>1.4.1</maven-enforcer-plugin.version>
+        <maven.version>3.0.0</maven.version>
+        <spring-cloud.version>Hoxton.SR8</spring-cloud.version>
+        <springfox.version>2.7.0</springfox.version>
+        <org.mapstruct.version>1.2.0.Final</org.mapstruct.version>
+        
+		<sonar.coverage.exclusions>
+			src/main/java/mx/com/nmp/mspreconciliacion/helper/**, src/main/java/mx/com/nmp/mspreconciliacion/helper/impl/**,src/main/java/mx/com/nmp/mspreconciliacion/model/preconciliacion/**, src/main/java/mx/com/nmp/mspreconciliacion/centropagos/consumer/AESEncryption.java, src/main/java/mx/com/nmp/mspreconciliacion/centropagos/consumer/CentroPagosSoapConfiguration.java, src/main/java/mx/com/nmp/mspreconciliacion/centropagos/consumer/AESEncryption.java, src/main/java/mx/com/nmp/mspreconciliacion/centropagos/consumer/soap/**, src/main/java/mx/com/nmp/mspreconciliacion/config/**, src/main/java/mx/com/nmp/mspreconciliacion/consumer/rest/**	,src/main/java/mx/com/nmp/mspreconciliacion/consumer/rest/dto/**, src/main/java/mx/com/nmp/mspreconciliacion/model/enums/**, src/main/java/mx/com/nmp/mspreconciliacion/model/error/**, src/main/java/mx/com/nmp/mspreconciliacion/util/**, src/main/java/mx/com/nmp/mspreconciliacion/exceptions/**, src/main/java/mx/com/nmp/mspreconciliacion/filter/**, src/main/java/mx/com/nmp/mspreconciliacion/repository/**, src/main/java/mx/com/nmp/mspreconciliacion/MSPreConciliacionApplication.java, src/main/java/mx/com/nmp/mspreconciliacion/services/**, src/main/java/mx/com/nmp/mspreconciliacion/model/dto/**
+		</sonar.coverage.exclusions>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-validation</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-elasticsearch</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-configuration-processor</artifactId>
+            <optional>true</optional>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.vaadin.external.google</groupId>
+                    <artifactId>android-json</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.retry</groupId>
+            <artifactId>spring-retry</artifactId>
+            <version>1.2.5.RELEASE</version>
+        </dependency>
+
+        <!-- API -->
+        <!--
+        <dependency>
+            <groupId>io.springfox</groupId>
+            <artifactId>springfox-swagger2</artifactId>
+            <version>${springfox.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.mapstruct</groupId>
+                    <artifactId>mapstruct</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>io.springfox</groupId>
+            <artifactId>springfox-bean-validators</artifactId>
+            <version>${springfox.version}</version>
+        </dependency>
+		-->
+		
+        <!-- JSON -->
+		<dependency> 
+		    <groupId>com.fasterxml.jackson.core</groupId>
+		    <artifactId>jackson-databind</artifactId>
+		</dependency>	        
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-hibernate5</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-hppc</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-jsr310</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-json-org</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.module</groupId>
+            <artifactId>jackson-module-afterburner</artifactId>
+        </dependency>
+        <dependency>
+		    <groupId>com.fasterxml.jackson.dataformat</groupId>
+		    <artifactId>jackson-dataformat-xml</artifactId>
+		    <version>2.11.1</version>
+		</dependency>
+	<dependency>
+	  <groupId>javax.xml.bind</groupId>
+	  <artifactId>jaxb-api</artifactId>
+	  <version>2.3.0</version>
+	</dependency>
+	<dependency>
+	    <groupId>javax.xml.ws</groupId>
+	    <artifactId>jaxws-api</artifactId>
+	    <version>2.3.1</version>
+	</dependency>	
+	<dependency>
+	  <groupId>com.sun.xml.ws</groupId>
+	  <artifactId>jaxws-ri</artifactId>
+	  <version>2.3.3</version>
+	  <type>pom</type>
+	</dependency>	    
+	    
+        <!-- DTOs -->
+        <dependency>
+            <groupId>org.mapstruct</groupId>
+            <artifactId>mapstruct-jdk8</artifactId>
+            <version>${org.mapstruct.version}</version>
+        </dependency>
+
+        <!-- ArrayList -->
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>23.0</version>
+        </dependency>
+
+	<dependency>
+        <groupId>com.lowagie</groupId>
+        <artifactId>itext</artifactId>
+        <version>2.1.7</version>
+		<scope>compile</scope>        
+    </dependency>
+
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi</artifactId>
+            <version>5.2.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi-ooxml</artifactId>
+            <version>5.2.0</version>
+        </dependency>
+
+        <!-- test -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.vaadin.external.google</groupId>
+                    <artifactId>android-json</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-test</artifactId>
+            <scope>test</scope>
+            <version>4.1.3.RELEASE</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-mail</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- Notificaciones -->
+        <dependency>
+            <groupId>org.apache.velocity</groupId>
+            <artifactId>velocity</artifactId>
+            <version>1.7</version>
+        </dependency>
+        
+        <!-- Authomated test -->
+        <dependency>
+			<groupId>com.intuit.karate</groupId>
+		  	<artifactId>karate-apache</artifactId>
+		  	<version>0.6.0</version>
+		  	<scope>test</scope>
+		</dependency>
+		<dependency>
+		  	<groupId>com.intuit.karate</groupId>
+			<artifactId>karate-junit4</artifactId>
+			<version>0.6.0</version>
+			<scope>test</scope>
+		</dependency>
+		
+		<!-- https://mvnrepository.com/artifact/org.apache.commons/commons-collections4 -->
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-collections4</artifactId>
+			<version>4.1</version>
+		</dependency>
+		<!-- Intercepcion de eventos -->
+		<dependency>
+	        <groupId>org.springframework.boot</groupId>
+	        <artifactId>spring-boot-starter-aop</artifactId>
+    	</dependency>
+		
+		<!-- Construccion de plantillas HTML para envio de correo electronico -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-velocity</artifactId>
+			<version>1.4.7.RELEASE</version>
+		</dependency>
+		
+		<!-- https://mvnrepository.com/artifact/org.springframework/spring-context-support -->
+		<dependency>
+		    <groupId>org.springframework</groupId>
+		    <artifactId>spring-context-support</artifactId>
+		    <version>3.2.0.RELEASE</version>
+		</dependency>
+
+		<dependency>
+		    <groupId>commons-codec</groupId>
+		    <artifactId>commons-codec</artifactId>
+		</dependency>
+
+		<!-- Bus TEST -->		
+		<dependency>
+			<groupId>mx.openpay</groupId>
+			<artifactId>openpay-api-client</artifactId>
+			<version>1.0.14</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.ws</groupId>
+			<artifactId>spring-ws-core</artifactId>
+		</dependency>
+		
+		<dependency>
+		    <groupId>com.jcraft</groupId>
+		    <artifactId>jsch</artifactId>
+		    <version>0.1.55</version>
+		</dependency>
+		
+		<dependency>
+		    <groupId>commons-net</groupId>
+		    <artifactId>commons-net</artifactId>
+		    <version>3.6</version>
+		</dependency>     		
+
+		<dependency>
+		    <groupId>com.newrelic.agent.java</groupId>
+		    <artifactId>newrelic-java</artifactId>
+		    <version>7.7.0</version>
+		    <type>zip</type>
+		</dependency>
+
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <optional>true</optional>
+        </dependency>
+
+    </dependencies>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-dependencies</artifactId>
+                <version>${spring-cloud.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+	<repositories>
+	   <repository>
+	      <id>central maven repo</id>
+	      <name>central maven repo https</name>
+	      <url>https://repo1.maven.org/maven2</url>
+	   </repository>
+        <repository>
+            <id>jaspersoft-third-party</id>
+            <url>https://jaspersoft.jfrog.io/jaspersoft/third-party-ce-artifacts/</url>
+        </repository>	   
+	</repositories>
+	<pluginRepositories>
+	    <pluginRepository>
+	        <id>central</id>
+	        <url>https://repo1.maven.org/maven2</url>
+	        <snapshots>
+	            <enabled>false</enabled>
+	        </snapshots>
+	    </pluginRepository>
+		<pluginRepository>
+            <id>jaspersoft-third-party</id>
+            <url>https://jaspersoft.jfrog.io/jaspersoft/third-party-ce-artifacts/</url>
+        </pluginRepository>	    
+	</pluginRepositories>
+
+    <build>
+        <defaultGoal>spring-boot:run</defaultGoal>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <version>${maven-enforcer-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <id>enforce-versions</id>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <rules>
+                        <requireMavenVersion>
+                            <message>Estas usando una version anterior de Maven. Se requiere al menos Maven ${maven.version}</message>
+                            <version>[${maven.version},)</version>
+                        </requireMavenVersion>
+                        <requireJavaVersion>
+                            <message>Estas usando una version anterior de Java. Se requiere al menos JDK ${java.version}</message>
+                            <version>[${java.version}.0,)</version>
+                        </requireJavaVersion>
+                    </rules>
+                </configuration>
+            </plugin>
+
+			<plugin>
+				<groupId>org.jacoco</groupId>
+				<artifactId>jacoco-maven-plugin</artifactId>
+				<version>0.8.7</version>
+				<configuration>
+					<excludes>
+						<!-- Excluded Packages from Jacoco Report -->
+						<exclude>mx/com/nmp/mspreconciliacion/config/*.class</exclude>
+						<exclude>mx/com/nmp/mspreconciliacion/consumer/rest/*.class</exclude>						
+						<exclude>mx/com/nmp/mspreconciliacion/consumer/rest/dto/*.class</exclude>
+						<exclude>mx/com/nmp/mspreconciliacion/consumer/rest/comisiones/dto/*.class</exclude>
+						<exclude>mx/com/nmp/mspreconciliacion/centropagos/consumer/CentroPagosSoapConfiguration.class</exclude>
+						<exclude>mx/com/nmp/mspreconciliacion/centropagos/consumer/soap/*.class</exclude>
+						<exclude>mx/com/nmp/mspreconciliacion/services/ComisionBancariaSantanderService.class</exclude>
+						<exclude>mx/com/nmp/mspreconciliacion/helper/*.class</exclude>
+						<exclude>mx/com/nmp/mspreconciliacion/helper/impl/*.class</exclude>
+						<exclude>mx/com/nmp/mspreconciliacion/model/preconciliacion/*.class</exclude>
+						<exclude>mx/com/nmp/mspreconciliacion/model/enums/*.class</exclude>
+						<exclude>mx/com/nmp/mspreconciliacion/model/error/*.class</exclude>
+						<exclude>mx/com/nmp/mspreconciliacion/util/*.class</exclude>
+						<exclude>mx/com/nmp/mspreconciliacion/exceptions/*.class</exclude>
+						<exclude>mx/com/nmp/mspreconciliacion/filter/*.class</exclude>
+						<exclude>mx/com/nmp/mspreconciliacion/repository/*.class</exclude>
+						<exclude>mx/com/nmp/mspreconciliacion/services/*.class</exclude>
+						<exclude>mx/com/nmp/mspreconciliacion/MSPreConciliacionApplication.class</exclude>
+						<exclude>mx/com/nmp/mspreconciliacion/model/dto/RequestCentroPagosDTO.class</exclude>
+						<exclude>mx/com/nmp/mspreconciliacion/model/dto/ComisionesBancariasDTO.class</exclude>
+						<exclude>mx/com/nmp/mspreconciliacion/model/dto/CorresponsalDTO.class</exclude>
+						<exclude>mx/com/nmp/mspreconciliacion/model/dto/CatalogoComisionesDTO.class</exclude>
+						<exclude>mx/com/nmp/mspreconciliacion/model/dto/MoPagosConciliadosMitDTO.class</exclude>
+						<exclude>mx/com/nmp/mspreconciliacion/model/dto/CoreDTO.class</exclude>
+						<exclude>mx/com/nmp/mspreconciliacion/model/dto/DevolucionDTO.class</exclude>
+						<exclude>mx/com/nmp/mspreconciliacion/model/dto/RequestCatalgoComisionesDTO.class</exclude>
+						<exclude>mx/com/nmp/mspreconciliacion/model/dto/MovCentroPagosDTO.class</exclude>
+						<exclude>mx/com/nmp/mspreconciliacion/model/dto/MoPagosMitDTO.class</exclude>
+						<exclude>mx/com/nmp/mspreconciliacion/model/dto/RequestEjecucionDTO.class</exclude>
+						<exclude>mx/com/nmp/mspreconciliacion/model/dto/RestPreconcilacionDTO.class</exclude>
+					</excludes>
+				</configuration>
+				<executions>
+					<execution>
+						<goals>
+							<goal>prepare-agent</goal>
+						</goals>
+					</execution>
+					<!-- attached to Maven test phase -->
+					<execution>
+						<id>report</id>
+						<phase>test</phase>
+						<goals>
+							<goal>report</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.6.2</version>
+                <configuration>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>org.mapstruct</groupId>
+                            <artifactId>mapstruct-processor</artifactId>
+                            <version>${org.mapstruct.version}</version>
+                        </path>
+                    </annotationProcessorPaths>
+                </configuration>
+            </plugin>
+            
+			<plugin>
+		        <groupId>org.apache.maven.plugins</groupId>
+		        <artifactId>maven-dependency-plugin</artifactId>
+		        <version>3.1.1</version>
+		        <executions>
+		            <execution>
+		            <id>unpack-newrelic</id>
+		            <phase>prepare-package</phase>
+		            <goals>
+		                <goal>unpack-dependencies</goal>
+		            </goals>
+		            <configuration>
+		                <includeGroupIds>com.newrelic.agent.java</includeGroupIds>
+		                <includeArtifactIds>newrelic-java</includeArtifactIds>
+		                <excludes>**/newrelic.yml</excludes>
+		                <overWriteReleases>false</overWriteReleases>
+		                <overWriteSnapshots>false</overWriteSnapshots>
+		                <overWriteIfNewer>true</overWriteIfNewer>
+		                <outputDirectory>${project.build.outputDirectory}</outputDirectory>
+		            </configuration>
+		            </execution>
+		        </executions>
+	        </plugin>            
+        </plugins>
+        <resources>
+        	<resource>
+			     <directory>src/main/resources</directory>
+			     <filtering>true</filtering>
+			     <includes>
+			     	<include>application-dev.yml</include>
+			     	<include>application-cloud.yml</include>
+					<include>application.yml</include>
+					<include>/templates/*</include>
+					<include>logback-spring.xml</include>
+					<include>amexEstablecimientos.json</include>
+					<include>newrelic.yml</include>					
+			     </includes>			     
+			</resource>
+		</resources>
+		<testResources>
+            <testResource>
+                <directory>src/test/java</directory>
+                <excludes>
+                    <exclude>**/*.java</exclude>
+                </excludes>
+            </testResource>
+        </testResources>
+    </build>
+
+
+    <profiles>
+
+        <!-- Desactivar evaluación estricta del plugin Javadoc en Java 1.8 -->
+        <profile>
+            <id>disable-java8-doclint</id>
+            <activation>
+                <jdk>[1.8,)</jdk>
+            </activation>
+            <properties>
+                <additionalparam>-Xdoclint:none</additionalparam>
+            </properties>
+        </profile>
+
+        <!-- Perfil de desarrollo -->
+        <profile>
+            <id>dev</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <dependencies>
+                <dependency>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-undertow</artifactId>
+                </dependency>
+            </dependencies>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-war-plugin</artifactId>
+                        <configuration>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+            <properties>
+                <logback.loglevel>DEBUG</logback.loglevel>
+                <spring.profiles.active>dev</spring.profiles.active>
+            </properties>
+        </profile>
+
+        <!-- Perfil de prod -->
+        <profile>
+            <id>cloud</id>
+            <dependencies>
+                <dependency>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-undertow</artifactId>
+                </dependency>
+            </dependencies>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-war-plugin</artifactId>
+                        <configuration>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+            <properties>
+                <logback.loglevel>INFO</logback.loglevel>
+                <spring.profiles.active>cloud</spring.profiles.active>
+            </properties>
+        </profile>
+    </profiles>
+
+</project>

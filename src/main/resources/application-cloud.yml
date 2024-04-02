@@ -1,0 +1,77 @@
+# ===================================================================================================
+# Configuración Spring Boot - CLOUD
+#
+# Configuración para el profile de Spring "cloud".
+# Aquí se establece la configuración para la aplicación que se
+# ejecuta en Bluemix, independientemente del ambiente (dev, test, prod)
+# ===================================================================================================
+
+# ===================================================================================================
+# Propiedades estandar de Spring.
+# Referencia completa en:
+# http://docs.spring.io/spring-boot/docs/current/reference/html/common-application-properties.html
+# ===================================================================================================
+spring:
+  freemarker:
+    template-loader-path: file:/usr/share/fonts/truetype
+logback:
+  loglevel: DEBUG
+
+management:
+  endpoint:
+    health:
+      show-details: always
+
+TZ: ${TZ}
+
+# Variables utiles para app microservicio mspreconciliacion
+mspreconciliacion:
+  elasticsearch:
+      url: ${ELASTICSEARCH_HOST}
+      user: ${ELASTICSEARCH_USR}
+      pwd: ${ELASTICSEARCH_PWD}
+      moPagos: ${ELASTICSEARCH_MO_PAGOS}
+      moPagosMit: ${ELASTICSEARCH_MO_PAGOS_MIT}
+      moPagosMitConciliados: ${ELASTICSEARCH_MO_PAGOS_MIT_CONCILIADOS}
+      moPagosMitConciliadosEPA: ${ELASTICSEARCH_MO_PAGOS_MIT_CONCILIADOS_EPA}
+  newrelic:
+      NEW_RELIC_LICENSE_KEY: ${NEW_RELIC_APP_NAME}
+      NEW_RELIC_APP_NAME: ${NEW_RELIC_LICENSE_KEY}
+  variables:
+      numeroDiasRestaWSOnlinePre: ${NUM_DIAS_RESTA_WSONLINE_PRE}
+      habilitarPrePagoNoEncontradoA15: ${PRECONCILIACION_HABILITAR_PAGO_NO_ENCONTRADO_A15}
+      centroPagosWSInfo:
+        user: ${CENTROPAGOS_USER}
+        pwd: ${CENTROPAGOS_PWD}
+        company: ${CENTROPAGOS_COMPANY}
+        url: ${CENTROPAGOS_URL}
+        llaveNMP: ${CENTROPAGOS_LLAVENMP}
+        datoFijoNMP: ${CENTROPAGOS_DATOFIJONMP}
+        habilitarCentroPagos: ${CENTROPAGOS_HABILITAR_CONSULTAONLINE}
+      santanderSftp:
+        host: ${SANTANDER_SFTP_HOST}
+        port: ${SANTANDER_SFTP_PORT}
+        user: ${SANTANDER_SFTP_USER}
+        pwd: ${SANTANDER_SFTP_PWD}
+        folder: ${SANTANDER_SFTP_FOLDER}
+        folderReintento: ${SANTANDER_SFTP_FOLDER_REINTENTO}
+      amexSftp:
+        host: ${AMEX_SFTP_HOST}
+        port: ${AMEX_SFTP_PORT}
+        user: ${AMEX_SFTP_USER}
+        pwd: ${AMEX_SFTP_PWD}
+        folder: ${AMEX_SFTP_FOLDER}
+        folderReintento: ${AMEX_SFTP_FOLDER_REINTENTO}
+      ms.pagos_predarios.url:  ${MS_PAGOS_PRENDARIOS_URL}
+      apiKeyPagosPrendarios: ${MS_PAGOS_PRENDARIOS_APIKEY}
+      headerApiKeyPagosPrendarios: ${MS_PAGOS_PRENDARIOS_HEADER_APIKEY}
+      auth:
+        usuario: ${AUTH_USUARIO}
+        pwd: ${AUTH_PWD}
+        url: ${AUTH_URL}
+        headerIdConsumidor: ${AUTH_HCONSUMIDOR}
+        headerIdDestino: ${AUTH_HDESTINO}
+        maxAttempt: ${AUTH_MAXATTEMPT}
+        retryTimeInterval: ${AUTH_RETRY_INTERVAL}        
+      comisionesMIDAS:
+        url: ${MIDAS_COMISIONES_OAG_URL}      

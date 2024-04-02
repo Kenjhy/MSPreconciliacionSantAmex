@@ -1,0 +1,13 @@
+---
+applications:
+- name: dev1775-mimonte-preconciliacion-sant-amex
+  buildpack: https://github.com/cloudfoundry/java-buildpack.git
+  memory: 1G
+  timeout: 460
+  path: target/mspreconciliacion-0.0.1.war
+  env:
+    spring.profiles.active: cloud
+    TZ: America/Mexico_City
+    JAVA_OPTS: -javaagent:/workspace/WEB-INF/classes/newrelic/newrelic.jar -Dnewrelic.config.file:/workspace/WEB-INF/classes/newrelic.yml
+  services:
+    - 1775-preconciliacion

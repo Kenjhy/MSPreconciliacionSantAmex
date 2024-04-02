@@ -1,0 +1,179 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: ""
+Parameters:
+  NombreVPC:
+    Type: String
+  ApiAlbNumber:
+    Type: String
+  ClusterName:
+    Type: String
+    Description: Nombre de la consultora
+  ServiceName:
+    Type: String
+    Description: Nombre del microservicio
+  TaskDefinitionARN:
+    Type: String
+    Description: ARN de Task Definition
+  HealthPath:
+    Type: String
+    Description: Path de health del servicio
+  HealthCode:
+    Type: String
+    Description: Código HTTP que se espera al hacer un GET al path de health
+  ContainerPort:
+    Type: Number
+    Description: port number exposed from the container image.
+  PrioridadListener:
+    Type: Number
+    Description: Prioridad de de la regla en el listener. No se debe repetir.
+  DominioBase:
+    Type: String
+    Description: "Dominio base (el de la HostedZone)"
+  SubdominioBalanceador:
+    Type: String
+    Description: "Subdominio del balanceador. Ejemplo: apis1 y webs1"
+  HealthCount:
+    Type: Number
+    Description: Número de veces que el healthcheck debe ser exitoso para considerar al servicio saludable
+  HealthTimeout:
+    Type: Number
+    Description: Tiempo máximo en el que se espera una respuesta al hacer una petición de healthcheck
+  HealthIntervalo:
+    Type: Number
+    Description: Tiempo en segundos entre cada petición de healthcheck
+  ServiceReplicas:
+    Type: Number
+    Description: Número de réplicas que tendrá la tarea.
+
+Resources:
+    ElasticLoadBalancingV2TargetGroup:
+        Type: "AWS::ElasticLoadBalancingV2::TargetGroup"
+        Properties:
+            HealthCheckIntervalSeconds: !Ref HealthIntervalo
+            HealthCheckPath: !Ref HealthPath
+            Port: 80
+            Protocol: "HTTP"
+            HealthCheckPort: "traffic-port"
+            HealthCheckProtocol: "HTTP"
+            HealthCheckTimeoutSeconds: !Ref HealthTimeout
+            UnhealthyThresholdCount: !Ref HealthCount
+            TargetType: "ip"
+            Matcher: 
+                HttpCode: !Ref HealthCode
+            HealthyThresholdCount: 5
+            VpcId:
+              Fn::ImportValue: !Sub "${NombreVPC}-VPC"
+            HealthCheckEnabled: true
+            TargetGroupAttributes:
+              - 
+                Key: "stickiness.enabled"
+                Value: "false"
+              - 
+                Key: "deregistration_delay.timeout_seconds"
+                Value: "300"
+              - 
+                Key: "stickiness.app_cookie.cookie_name"
+                Value: ""
+              - 
+                Key: "stickiness.type"
+                Value: "lb_cookie"
+              - 
+                Key: "stickiness.lb_cookie.duration_seconds"
+                Value: "86400"
+              - 
+                Key: "slow_start.duration_seconds"
+                Value: "0"
+              - 
+                Key: "stickiness.app_cookie.duration_seconds"
+                Value: "86400"
+              - 
+                Key: "load_balancing.algorithm.type"
+                Value: "round_robin"
+
+    ALBListenerProdRule:
+      Type: 'AWS::ElasticLoadBalancingV2::ListenerRule'
+      Properties:
+        Actions:
+          - Type: forward
+            ForwardConfig:
+              TargetGroups:
+                - TargetGroupArn: !Ref ElasticLoadBalancingV2TargetGroup
+                  Weight: 1
+              TargetGroupStickinessConfig: 
+                        Enabled: false
+        Conditions:
+          - 
+            Field: "http-header"
+            HttpHeaderConfig: 
+              HttpHeaderName: original_host
+              Values: 
+                - !Sub "${ServiceName}.${SubdominioBalanceador}.${DominioBase}"
+        ListenerArn:
+          Fn::ImportValue: !Sub "${NombreVPC}-ApiAlbListener${ApiAlbNumber}"
+        Priority: !Ref PrioridadListener
+
+    ECSService:
+        Type: "AWS::ECS::Service"
+        DependsOn:
+          - TaskLogGroup
+          - ALBListenerProdRule
+        Properties:
+            ServiceName: !Ref ServiceName
+            Cluster: !Ref ClusterName
+            PropagateTags: SERVICE
+            LoadBalancers: 
+              - 
+                TargetGroupArn: !Ref ElasticLoadBalancingV2TargetGroup
+                ContainerName: !Ref ServiceName
+                ContainerPort: !Ref ContainerPort
+            DesiredCount: !Ref ServiceReplicas
+            LaunchType: "FARGATE"
+            PlatformVersion: "1.4.0"
+            TaskDefinition: !Ref TaskDefinitionARN
+            DeploymentConfiguration: 
+                MaximumPercent: 200
+                MinimumHealthyPercent: 100
+                DeploymentCircuitBreaker:
+                  Enable: True
+                  Rollback: False
+            NetworkConfiguration: 
+                AwsvpcConfiguration: 
+                    AssignPublicIp: "DISABLED"
+                    SecurityGroups: 
+                      - !Ref EC2SecurityGroup
+                    Subnets: 
+                      - Fn::ImportValue: !Sub "${NombreVPC}-PrivateSubnet1a"
+            HealthCheckGracePeriodSeconds: 0
+            SchedulingStrategy: "REPLICA"
+            DeploymentController: 
+                Type: "ECS"
+            Tags: 
+            - Key: ClusterECS
+              Value: !Ref ClusterName
+    
+    EC2SecurityGroup:
+        Type: "AWS::EC2::SecurityGroup"
+        Properties:
+            GroupDescription: "SG para ms"
+            GroupName: !Sub ${ServiceName}-sg
+            VpcId:
+              Fn::ImportValue: !Sub "${NombreVPC}-VPC"
+            SecurityGroupIngress: 
+              - 
+                CidrIp: "10.0.0.0/16"
+                FromPort: !Ref ContainerPort
+                IpProtocol: "tcp"
+                ToPort: !Ref ContainerPort
+            SecurityGroupEgress: 
+              - 
+                CidrIp: "0.0.0.0/0"
+                IpProtocol: "-1"
+
+    TaskLogGroup:
+      Type: 'AWS::Logs::LogGroup'
+      Properties:
+        LogGroupName: !Sub '/ecs/${ClusterName}/${ServiceName}'
+        RetentionInDays: 30
+        Tags: 
+          - Key: ClusterECS
+            Value: !Ref ClusterName

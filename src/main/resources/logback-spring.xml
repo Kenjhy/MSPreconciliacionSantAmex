@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<configuration scan="true">
+    <include resource="org/springframework/boot/logging/logback/base.xml"/>
+
+    <logger name="mx.com.nmp.mspreconciliacion" level="info"/>
+
+    <logger name="com.sun.xml" level="WARN" />
+    <logger name="com.zaxxer" level="WARN" />
+    <logger name="io.undertow" level="WARN" />
+    <logger name="javax.activation" level="WARN" />
+    <logger name="javax.xml" level="WARN" />
+    <logger name="net.sf.ehcache" level="WARN" />
+    <logger name="org.apache" level="WARN" />
+    <logger name="org.crsh" level="WARN" />
+    <logger name="org.hibernate" level="WARN" />
+    <logger name="org.springframework" level="WARN" />
+    <logger name="org.xnio" level="WARN" />
+
+    <contextListener class="ch.qos.logback.classic.jul.LevelChangePropagator">
+        <resetJUL>true</resetJUL>
+    </contextListener>
+
+    <root level="#logback.loglevel#">
+        <appender-ref ref="CONSOLE"/>
+    </root>
+
+</configuration>

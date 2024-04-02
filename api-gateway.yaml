@@ -1,0 +1,168 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: ""
+Parameters:
+  NombreVPC:
+    Type: String
+    Default: "NMP-Servicios"
+  ApiAlbNumber:
+    Type: String
+    Default: "1"
+  ServiceName:
+    Type: String
+    Description: Nombre del microservicio
+  StageName:
+    Type: String 
+    Description: Nombre del stage del API Gateway
+    Default: "api"
+  ClusterName:
+    Type: String
+    Description: Nombre de la consultora
+  DominioBase:
+    Type: String
+    Default: test.timelineage.site
+    Description: "Dominio base (el de la HostedZone)"
+  Route53HostedZoneId:
+    Type: String
+    Default: Z05524491VQ38G93MIPQD
+    Description: "ID de la HostedZone dueña del dominio base"
+  SubdominioBalanceador:
+    Type: String
+    Default: apix1
+    Description: "Subdominio del balanceador. Ejemplo: apis1 y webs1"
+  TLSVersion:
+    Type: String
+    Default: TLS_1_2
+    Description: "Version TLS. Ejemplo: TLS 1.2 y TLS 1.0"
+  TypeEndpoint:
+    Type: String
+    Default: REGIONAL
+    Description: "Especifica el punto final de la API. Ejemplo: REGIONAL y EDGE"
+
+##############################
+# Definición de API Gateway  #
+##############################
+Resources:
+    Api:
+      Type: 'AWS::ApiGateway::RestApi'
+      Properties:
+        Name: !Ref ServiceName
+        Tags: 
+          - Key: ClusterECS
+            Value: !Ref ClusterName
+      
+    Resource:
+      Type: 'AWS::ApiGateway::Resource'
+      Properties:
+        ParentId: !GetAtt Api.RootResourceId
+        RestApiId: !Ref Api
+        PathPart: '{proxy+}'
+
+    ProxyMethod:
+      Type: 'AWS::ApiGateway::Method'
+      Properties:
+        HttpMethod: ANY
+        ApiKeyRequired: true
+        ResourceId: !Ref Resource
+        RestApiId: !Ref Api
+        AuthorizationType: NONE
+        RequestParameters:
+          method.request.path.proxy: true
+        Integration:
+          RequestParameters:
+            integration.request.path.proxy: 'method.request.path.proxy'
+            integration.request.header.original_host: !Sub "'${ServiceName}.${SubdominioBalanceador}.${DominioBase}'"
+          IntegrationHttpMethod: ANY
+          ConnectionType: VPC_LINK
+          ConnectionId: 
+            Fn::ImportValue: !Sub "${NombreVPC}-ApiNlbApiGatewayVpcLink"
+          Type: HTTP_PROXY
+          Uri: !Sub 
+            - "http://${DNSNLB}/{proxy}"
+            - DNSNLB: 
+                Fn::ImportValue: !Sub "${NombreVPC}-ApiNlbDNS${ApiAlbNumber}"
+          PassthroughBehavior: WHEN_NO_MATCH
+
+    Deployment:
+      DependsOn:
+        - ProxyMethod
+      Type: 'AWS::ApiGateway::Deployment'
+      Properties:
+        RestApiId: !Ref Api
+        StageName: !Ref StageName
+
+    CustomDomain:
+      Type: 'AWS::ApiGateway::DomainName'
+      Properties:
+        RegionalCertificateArn: 
+          Fn::ImportValue: !Sub "${SubdominioBalanceador}-${Route53HostedZoneId}-CertificateArn"
+        DomainName: !Sub "${ServiceName}.${SubdominioBalanceador}.${DominioBase}"
+        EndpointConfiguration:
+          Types:
+            - !Ref TypeEndpoint
+        SecurityPolicy: !Ref TLSVersion
+
+    APIMappings:
+      DependsOn:
+        - Deployment
+      Type: 'AWS::ApiGateway::BasePathMapping'
+      Properties:
+        DomainName: !Sub "${ServiceName}.${SubdominioBalanceador}.${DominioBase}"
+        RestApiId: !Ref Api
+        Stage: !Ref StageName
+
+    DomainRecordSet:
+      Type: 'AWS::Route53::RecordSetGroup'
+      Properties:
+        HostedZoneId: !Ref Route53HostedZoneId
+        RecordSets:
+          - Name: !Sub "${ServiceName}.${SubdominioBalanceador}.${DominioBase}"
+            Type: A
+            AliasTarget:
+              DNSName: !GetAtt CustomDomain.RegionalDomainName
+              EvaluateTargetHealth: false
+              HostedZoneId: !GetAtt CustomDomain.RegionalHostedZoneId
+
+    ApiKey: 
+      Type: AWS::ApiGateway::ApiKey
+      Properties: 
+        Name: !Sub "${ServiceName}-API-Key"
+        Description: !Sub "${ServiceName} API Key"
+        Enabled: true
+        GenerateDistinctId: false
+        Tags: 
+        - Key: ClusterECS
+          Value: !Ref ClusterName
+
+    ApiUsagePlan:
+      DependsOn:
+       - Deployment
+      Type: "AWS::ApiGateway::UsagePlan"
+      Properties:
+        ApiStages: 
+        - ApiId: !Ref Api
+          Stage: !Ref StageName    
+        Description: !Sub "${ServiceName} Usage Plan"
+        UsagePlanName: !Sub "${ServiceName}-usage-plan"
+        Tags: 
+        - Key: ClusterECS
+          Value: !Ref ClusterName
+
+    ApiUsagePlanKey:
+      Type: "AWS::ApiGateway::UsagePlanKey"
+      Properties:
+        KeyId: !Ref ApiKey
+        KeyType: API_KEY
+        UsagePlanId: !Ref ApiUsagePlan
+
+Outputs:
+  ApiKey:
+    Description: API Key ID
+    Value: !Ref ApiKey
+    Export:
+      Name: !Sub ${ServiceName}-ApiKey
+
+  Api:
+    Description: API ID
+    Value: !Ref Api
+    Export:
+      Name: !Sub ${ServiceName}-ApiId

@@ -1,0 +1,75 @@
+# ===================================================================================================
+# Configuración Spring Boot - DEV
+#
+# Configuración para el profile de Spring "dev".
+# Aquí se establece la configuración necesaria para el perfil de ejecución local con
+# base de datos también local
+# ===================================================================================================
+
+# ===================================================================================================
+# Propiedades estandar de Spring.
+# Referencia completa en:
+# http://docs.spring.io/spring-boot/docs/current/reference/html/common-application-properties.html
+# ===================================================================================================
+
+server:
+  port: 8080
+
+logback:
+  loglevel: DEBUG
+  
+management:
+  endpoint:
+    health:
+      show-details: always
+
+TZ: America/Mexico_City
+
+# Variables utiles para app microservicios mspreconciliacion
+mspreconciliacion:
+  elasticsearch:
+      url: https://b4eea1acc78248abbb59fe8ff3d09c53.us-east-1.aws.found.io:9243
+      user: srvmspageldesa
+      pwd: Mexico01
+      moPagos: mo_pagos
+      moPagosMit: mo_pagos_mit
+      moPagosMitConciliados: mo_pagos_conciliados_mit
+      moPagosMitConciliadosEPA: mm_pagos_conciliados_mit_epa
+  variables:
+      habilitarPrePagoNoEncontradoA15: true
+      numeroDiasRestaWSOnlinePre: 1
+      centroPagosWSInfo:
+        user: 3FAARHNA1
+        pwd: NACIONAL17
+        company: 3FAA
+        url: https://vip.e-pago.com.mx/pgs/services/xmltransacciones
+        llaveNMP: 25BAF7671240042E094BBA0B0F2F0094
+        datoFijoNMP: 9265655438
+        habilitarCentroPagos: false
+      santanderSftp:
+        host: sftp.mitec.com.mx
+        port: 22
+        user: mitcte3FAA
+        pwd: V1Nw2DEEJguKN2bNgOiK
+        folder: Outbox
+        folderReintento: Outbox
+      amexSftp:
+        host: 148.173.107.23
+        port: 22
+        user: NACIONALGRRCN
+        pwd: k_!@7LMP
+        folder: sent
+        folderReintento: sent
+      ms.pagos_predarios.url: http://localhost:8081/mimonte/ejecucionpreconciliacion/actualizar
+      apiKeyPagosPrendarios: 6vvkywni657WXCoc6PtBw7PdRhjummbF4On2wcfj
+      headerApiKeyPagosPrendarios: x-api-key
+      auth:
+        usuario: mimonte
+        pwd: iXjqY2ccS783PTF0
+        url: https://iamdr.montepiedad.com.mx:4444/NMP/oauth2/v1
+        headerIdConsumidor: 42
+        headerIdDestino: 100
+        maxAttempt: 1
+        retryTimeInterval: 3000        
+      comisionesMIDAS:
+        url: https://iamdr.montepiedad.com.mx:4444/NMP/GestionFinanzas/Conciliacion/Comisiones/v1/reporte/detalle
